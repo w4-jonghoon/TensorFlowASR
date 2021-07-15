@@ -22,7 +22,6 @@ class ASRT2TDatasetTests(unittest.TestCase):
     def test_create(self):
         """Test for create() function"""
         dataset = t2t_dataset.ASRT2TDataset(
-            data_paths=[],
             tfrecords_dirs=[TESTDATA_DIR],
             speech_featurizer=speech_featurizers.TFSpeechFeaturizer(
                 speech_config={}),
@@ -37,7 +36,7 @@ class ASRT2TDatasetTests(unittest.TestCase):
         for data in data_loader:
             del data  # Unused
             actual_count += 1
-        expected_count = 1198
+        expected_count = 262
 
         self.assertEqual(expected_count, actual_count)
 
@@ -49,7 +48,6 @@ class ASRT2TDatasetTests(unittest.TestCase):
                 shutil.copy(src_tfrecord, dir_1)
 
                 dataset = t2t_dataset.ASRT2TDataset(
-                    data_paths=[],
                     tfrecords_dirs=[dir_0, dir_1],
                     speech_featurizer=speech_featurizers.TFSpeechFeaturizer(
                         speech_config={}),
@@ -65,7 +63,7 @@ class ASRT2TDatasetTests(unittest.TestCase):
                 for data in data_loader:
                     del data  # Unused
                     actual_count += 1
-        expected_count = 1198 * 2
+        expected_count = 262 * 2
 
         self.assertEqual(expected_count, actual_count)
 
