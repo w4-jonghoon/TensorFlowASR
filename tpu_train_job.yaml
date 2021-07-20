@@ -1,0 +1,48 @@
+# yamllint disable-file
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "tensorflow-asr-train"
+spec:
+  parallelism: 1
+  backoffLimit: 3
+  # Keep pods for 3 days for debugging purpose
+  ttlSecondsAfterFinished: 259200
+  template:
+    metadata:
+      annotations:
+        # The Cloud TPUs that will be created for this Job must support
+        # TensorFlow 1.15.3 This version MUST match
+        # the TensorFlow version that your model is built on.
+        tf-version.cloud-tpus.google.com: "2.5.0"
+    spec:
+      containers:
+      - name: main
+        image: eu.gcr.io/skelter-kube1/skelter/experimental/tensorflow-asr:2.5.0
+        imagePullPolicy: Always
+        args:
+        - python
+        - /examples/conformer/train.py
+        - --static_length
+        - --mxp
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+            cloud-tpus.google.com/v3: 8
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+            cloud-tpus.google.com/v3: 8
+      # NOTE(hyunseok): The preemptible vm is usually chosen than
+      # non-preemptible vm when we don't specify the nodeSelector. But to
+      # avoid the uncertainty, explicitly set the nodeSelector on both cases.
+      nodeSelector:
+        preemptible: "false"
+      restartPolicy: Never
